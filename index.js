@@ -1,10 +1,9 @@
 // show category buttons
-const categoryBtnEl = () => {
+const categoryBtnEl = async () => {
     const url = 'https://openapi.programming-hero.com/api/phero-tube/categories';
-    fetch(url)
-        .then((res) => res.json())
-        .then((data) => showCategory(data.categories))
-        .catch((err) => console.log(err))
+    const res = await fetch(url)
+    const data = await res.json()
+    showCategory(data.categories)
 }
 
 const showCategory = (category) => {
@@ -13,27 +12,42 @@ const showCategory = (category) => {
     category.forEach(item => {
         const div = document.createElement('div');
         div.innerHTML = `
-        <button onclick="category(${item.category_id})" class="btn">${item.category}</button>
+        <button id="btn-${item.category_id}" onclick="category(${item.category_id})" class="btn active-btn">${item.category}</button>
     `
         categoryBTn.append(div);
 
     });
 };
-// show videos based on category
-function category (id){
-    fetch(`https://openapi.programming-hero.com/api/phero-tube/category/${id}`)
-    .then(res => res.json())
-    .then(data => showVideos(data.category))
-}
+// button toggle styels
+const btnstyles = () => {
 
+    const x = document.getElementsByClassName('active-btn');
+    for (let btn of x) {
+        btn.classList.remove('bg-red-500', 'text-white', 'font-bold');
+    };
+};
+// show videos based on category
+function category(id) {
+    fetch(`https://openapi.programming-hero.com/api/phero-tube/category/${id}`)
+        .then(res => res.json())
+        .then(data => {
+
+            // initially removes active styles from all buttons
+            btnstyles();
+
+            // adds active button styels when clicked
+            const activeBtn = document.getElementById(`btn-${id}`)
+            activeBtn.classList.add('btn', 'bg-red-500', 'text-white', 'font-bold');
+            showVideos(data.category)
+        });
+};
 
 // show videos
-const loadvideoDetails = () => {
-    const url = 'https://openapi.programming-hero.com/api/phero-tube/videos'
-    fetch(url)
-        .then(res => res.json())
-        .then(data => showVideos(data.videos))
-        .catch(err => console.log(err))
+const loadvideoDetails = async (searchValue = '') => {
+    const url = `https://openapi.programming-hero.com/api/phero-tube/videos?title=${searchValue}`
+    const res = await fetch(url)
+    const data = await res.json()
+    showVideos(data.videos)
 };
 
 // converting time
@@ -42,16 +56,15 @@ const time = (hrs) => {
     const remainingHr = parseInt(hrs % 3600);
     const min = parseInt(remainingHr / 60);
     const sec = parseInt(remainingHr % 60);
-    return(`${hr} hr ${min} min ${sec} sec ago`);
+    return (`${hr} hr ${min} min ${sec} sec ago`);
 };
-
 
 const showVideos = (video) => {
 
     const videocontainer = document.getElementById('videos');
     videocontainer.innerHTML = '';
 
-    if(video.length == 0){
+    if (video.length == 0) {
         videocontainer.classList.remove('grid')
         videocontainer.innerHTML = `
         <div class="flex flex-col justify-center items-center mt-20 gap-6">
@@ -85,7 +98,7 @@ const showVideos = (video) => {
                 <div>
                     <h3 class="font-bold text-2xl">${item.title}</h3>
                     <div class="flex gap-1 items-center">
-                        <h3 class="text-gray-500">${item.authors[0].profile_name}</h3>
+                        <h3 class="text-gray-500 font-semibold">${item.authors[0].profile_name}</h3>
                         <span class="text-sm font-semibold  text-gray-500">${item.authors[0].verified === true ? '<img class="w-4" src="img/verified.png" />' : ''}</span>
                     </div>
                     <span class="text-sm text-gray-500">${item.others.views} views</span>
@@ -95,6 +108,10 @@ const showVideos = (video) => {
         videocontainer.append(div);
     });
 };
+// show vidoes by search
+document.getElementById('searchInput').addEventListener('keyup', (event) => {
+    loadvideoDetails(event.target.value)
+})
 
 loadvideoDetails();
 categoryBtnEl();
