@@ -65,19 +65,22 @@ const showVideos = (video) => {
     videocontainer.innerHTML = '';
 
     if (video.length == 0) {
-        videocontainer.classList.remove('grid')
         videocontainer.innerHTML = `
-        <div class="flex flex-col justify-center items-center mt-20 gap-6">
-            <div>
-                <img src="img/Icon.png"/>
-            </div>
-            <div class="text-center">
-                <p class="font-bold text-2xl">Oops! Sorry,</p>
-                <p class="font-bold text-2xl"> there is no content here</p>
+        // 
+        <div class="grid mt-20">
+            <div class="flex flex-col justify-center items-center gap-6">
+                <div>
+                    <img src="img/Icon.png"/>
+                </div>
+                <div class="text-center">
+                    <p class="font-bold text-2xl">Oops! Sorry,</p>
+                    <p class="font-bold text-2xl"> there is no content here</p>
+                </div>
             </div>
         </div>
-        
         `;
+        // videocontainer.classList.remove('grid');
+
         return;
     }
 
